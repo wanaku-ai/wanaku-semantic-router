@@ -10,12 +10,16 @@ import java.io.ByteArrayOutputStream;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.time.Duration;
 import java.util.Base64;
 import java.util.HexFormat;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -76,6 +80,40 @@ class RuntimeTest {
         }
     }
 
+    /** Test-scoped status listener that serves the same handlers as the runtime command. */
+    record StatusServer(HttpServer server) implements AutoCloseable {
+        static StatusServer start(SemanticRuntime runtime) throws Exception {
+            HttpServer server = RuntimeCommand.createStatusServer(runtime, "127.0.0.1", 0);
+            server.start();
+            return new StatusServer(server);
+        }
+
+        int probe(String method, String path) throws Exception {
+            return HttpClient.newHttpClient()
+                    .send(
+                            HttpRequest.newBuilder(URI.create("http://127.0.0.1:"
+                                            + server.getAddress().getPort() + path))
+                                    .timeout(Duration.ofSeconds(5))
+                                    .method(method, HttpRequest.BodyPublishers.noBody())
+                                    .build(),
+                            HttpResponse.BodyHandlers.discarding())
+                    .statusCode();
+        }
+
+        /** Returns the live, ready and started probe codes in that order. */
+        List<Integer> probes() throws Exception {
+            return List.of(
+                    probe("GET", "/api/v1/health/live"),
+                    probe("GET", "/api/v1/health/ready"),
+                    probe("GET", "/api/v1/health/started"));
+        }
+
+        @Override
+        public void close() {
+            server.stop(0);
+        }
+    }
+
     Properties settings(byte[] archive, int barnPort, int wanakuPort, int mcpPort, int providerPort) throws Exception {
         Properties p = PreviewServiceTest.providerSettings(providerPort);
         p.setProperty("wsr.experts", "supportExpert");
@@ -104,6 +142,8 @@ class RuntimeTest {
         int port = control.getAddress().getPort();
         java.util.concurrent.atomic.AtomicReference<com.fasterxml.jackson.databind.JsonNode> forward =
                 new java.util.concurrent.atomic.AtomicReference<>();
+        var status = new java.util.concurrent.atomic.AtomicReference<StatusServer>();
+        var probesWhileStopping = new java.util.concurrent.atomic.AtomicReference<List<Integer>>();
         control.createContext(
                 "/api/v1/service-catalog/download",
                 exchange -> PreviewService.respond(
@@ -131,6 +171,12 @@ class RuntimeTest {
                         200,
                         Map.of("data", Map.of("forward", Map.of("available", true), "tools_discovered", 1)));
             } else if (exchange.getRequestMethod().equals("GET")) {
+                // Shutdown checks forward ownership here, before it deletes the forward.
+                try {
+                    probesWhileStopping.set(status.get().probes());
+                } catch (Exception e) {
+                    throw new java.io.IOException(e);
+                }
                 PreviewService.respond(exchange, 200, Map.of("data", forward.get()));
             } else {
                 deletions.incrementAndGet();
@@ -141,10 +187,13 @@ class RuntimeTest {
         control.start();
         try (var provider = new LocalProvider(0)) {
             int mcp = freePort();
-            try (var runtime =
-                    new SemanticRuntime(RuntimeSettings.from(settings(archive, port, port, mcp, provider.port())))) {
+            var configuration = settings(archive, port, port, mcp, provider.port());
+            try (var runtime = new SemanticRuntime(RuntimeSettings.from(configuration));
+                    var statusServer = StatusServer.start(runtime)) {
+                status.set(statusServer);
                 runtime.start();
                 assertEquals("ready", runtime.status().get("state"));
+                assertReadyProbeContract(statusServer);
                 assertEquals(CatalogLoader.CAMEL_VERSION, runtime.status().get("camelVersion"));
                 assertEquals("20261006.103638", runtime.status().get("catalogCamelBuild"));
                 assertFalse(runtime.status().containsKey("camelBuild"));
@@ -212,12 +261,36 @@ class RuntimeTest {
                 }
                 assertTrue(interruptRestored.get());
                 assertEquals("stopped", runtime.status().get("state"));
+                assertEquals(List.of(503, 503, 503), probesWhileStopping.get(), "Probes must fail before deletion");
+                assertEquals(List.of(503, 503, 503), statusServer.probes());
+                assertEquals(200, statusServer.probe("GET", "/api/v1/status"));
             }
             assertEquals(1, deletions.get());
             assertEquals(0, Files.list(directory).count());
         } finally {
             control.stop(0);
         }
+    }
+
+    private static void assertReadyProbeContract(StatusServer status) throws Exception {
+        assertEquals(List.of(200, 200, 200), status.probes());
+        assertEquals(200, status.probe("GET", "/api/v1/status"));
+        assertEquals(200, status.probe("POST", "/api/v1/status"), "Status keeps accepting any method");
+        assertEquals(405, status.probe("POST", "/api/v1/health/ready"));
+        assertEquals(405, status.probe("PUT", "/api/v1/health/live"));
+        assertEquals(405, status.probe("DELETE", "/api/v1/health/started"));
+        assertEquals(404, status.probe("GET", "/api/v1/health/ready/x"));
+        assertEquals(404, status.probe("GET", "/api/v1/health/unknown"));
+        assertEquals(404, status.probe("GET", "/api/v1/status/x"));
+        String body = HttpClient.newHttpClient()
+                .send(
+                        HttpRequest.newBuilder(URI.create("http://127.0.0.1:"
+                                        + status.server().getAddress().getPort() + "/api/v1/health/ready"))
+                                .build(),
+                        HttpResponse.BodyHandlers.ofString())
+                .body();
+        assertEquals("ready", JSON.readTree(body).path("state").asText());
+        assertEquals("reference", JSON.readTree(body).path("forwardName").asText());
     }
 
     @Test
@@ -294,9 +367,12 @@ class RuntimeTest {
                 if (scenario.equals("expert")) {
                     configuration.setProperty("wsr.semantic-route.expert-bean", "differentPublishedExpert");
                 }
-                try (var runtime = new SemanticRuntime(RuntimeSettings.from(configuration))) {
+                try (var runtime = new SemanticRuntime(RuntimeSettings.from(configuration));
+                        var status = StatusServer.start(runtime)) {
                     assertThrows(Exception.class, runtime::start);
                     assertEquals("failed", runtime.status().get("state"));
+                    assertEquals(List.of(503, 503, 503), status.probes(), scenario);
+                    assertEquals(200, status.probe("GET", "/api/v1/status"));
                     assertEquals(beforeRegistration ? 0 : 1, registrations.get());
                     assertEquals(beforeRegistration ? 0 : 1, deletions.get());
                 }
@@ -367,9 +443,11 @@ class RuntimeTest {
                 int mcp = freePort();
                 Properties deployment = settings(archive, port, port, mcp, provider.port());
                 deployment.setProperty("wsr.http.timeout-ms", "1000");
-                try (var runtime = new SemanticRuntime(RuntimeSettings.from(deployment))) {
+                try (var runtime = new SemanticRuntime(RuntimeSettings.from(deployment));
+                        var status = StatusServer.start(runtime)) {
                     assertThrows(Exception.class, runtime::start, responseMode);
                     assertEquals("failed", runtime.status().get("state"));
+                    assertEquals(List.of(503, 503, 503), status.probes(), responseMode);
                     assertEquals(1, registrations.get());
                     assertEquals(responseMode.equals("replacement") ? 0 : 1, deletions.get());
                     assertThrows(
@@ -437,6 +515,45 @@ class RuntimeTest {
             assertThrows(Exception.class, runtime::start);
             assertEquals("failed", runtime.status().get("state"));
             assertNotNull(runtime.status().get("failure"));
+        }
+    }
+
+    @Test
+    void fatalStartupFailureWritesTheStatusToTheTerminationLog() throws Exception {
+        Path log = Files.createFile(directory.resolve("termination-log"));
+        List<String> arguments = DeploymentOptionsTest.runtimeArguments();
+        arguments.set(arguments.indexOf("--barn-url") + 1, "http://127.0.0.1:" + freePort());
+        arguments.addAll(List.of(
+                "--status-port",
+                Integer.toString(freePort()),
+                "--work-directory",
+                Files.createDirectory(directory.resolve("work")).toString()));
+        System.setProperty("wsr.termination-log", log.toString());
+        try {
+            var result = ApplicationTest.execute(arguments.toArray(String[]::new));
+            assertEquals(1, result.code(), result.error());
+            var message = JSON.readTree(Files.readAllBytes(log));
+            assertEquals("failed", message.path("state").asText());
+            assertFalse(message.path("failure").asText().isEmpty());
+            assertTrue(result.error().contains(Files.readString(log)));
+        } finally {
+            System.clearProperty("wsr.termination-log");
+        }
+    }
+
+    @Test
+    void terminationLogIsTruncatedAndSkippedWhenThePathIsNotWritable() throws Exception {
+        Path log = Files.createFile(directory.resolve("termination-log"));
+        Path absent = directory.resolve("absent-termination-log");
+        try {
+            System.setProperty("wsr.termination-log", log.toString());
+            RuntimeCommand.writeTerminationLog("x".repeat(5000).getBytes());
+            assertEquals(4096, Files.size(log));
+            System.setProperty("wsr.termination-log", absent.toString());
+            RuntimeCommand.writeTerminationLog("{}".getBytes());
+            assertFalse(Files.exists(absent));
+        } finally {
+            System.clearProperty("wsr.termination-log");
         }
     }
 }

@@ -19,7 +19,7 @@ The build creates `target/wanaku-semantic-router-0.3.0-SNAPSHOT.jar` and `target
 
 The runtime uses Camel `4.23.0-SNAPSHOT` artifacts containing [PR #27494](https://github.com/apache/camel/pull/27494). Republish catalogs using `semantic.evaluation`; old `semantic.question` YAML is incompatible. Migrate Barn preview clients to the new request and response contract before deployment. The Camel BOM manages all Camel dependency versions. Maven resolves the current snapshot artifacts during a build. A later build can resolve different binaries. Preserve the complete packaged distribution or container image digest to reproduce a deployment.
 
-See [the contract](docs/artifact-contract.md) for the verified native APIs. See [deployment](docs/deployment.md) for runtime and preview setup. See [SDK reuse](docs/sdk-reuse.md) for shared catalog transport, extraction, and dependency resolution.
+See [the contract](docs/artifact-contract.md) for the verified native APIs. See [deployment](docs/deployment.md) for runtime and preview setup. See [health probes](docs/deployment.md#health-probes) for the startup, readiness, and liveness contract. See [SDK reuse](docs/sdk-reuse.md) for shared catalog transport, extraction, and dependency resolution.
 
 The build applies the CIC Spotless rules during compilation. It uses Palantir Java Format and explicit imports. Use braces for control blocks. Apply formatting before you submit changes. Check committed formatting before you build a release.
 
