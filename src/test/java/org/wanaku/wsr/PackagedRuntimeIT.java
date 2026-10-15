@@ -53,6 +53,9 @@ class PackagedRuntimeIT {
         AtomicReference<com.fasterxml.jackson.databind.JsonNode> forward = new AtomicReference<>();
         AtomicReference<String> downloadQuery = new AtomicReference<>(), downloadAuth = new AtomicReference<>();
         AtomicReference<String> resolveQuery = new AtomicReference<>(), resolveAuth = new AtomicReference<>();
+        int status = RuntimeTest.freePort();
+        AtomicInteger readyWhileStopping = new AtomicInteger();
+        var http = HttpClient.newHttpClient();
         var publication = SemanticRouteTest.publication();
         publication.put("catalogName", "semantic-support-spike");
         publication.put("revision", "1");
@@ -94,6 +97,18 @@ class PackagedRuntimeIT {
                         200,
                         Map.of("data", Map.of("forward", Map.of("available", true), "tools_discovered", 1)));
             } else if (exchange.getRequestMethod().equals("GET")) {
+                // SIGTERM cleanup checks ownership here; readiness must already fail.
+                try {
+                    readyWhileStopping.set(http.send(
+                                    HttpRequest.newBuilder(
+                                                    URI.create("http://127.0.0.1:" + status + "/api/v1/health/ready"))
+                                            .timeout(Duration.ofSeconds(2))
+                                            .build(),
+                                    HttpResponse.BodyHandlers.discarding())
+                            .statusCode());
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
                 PreviewService.respond(exchange, 200, Map.of("data", forward.get()));
             } else {
                 deleted.incrementAndGet();
@@ -103,7 +118,7 @@ class PackagedRuntimeIT {
         control.start();
         Process process = null;
         try (var provider = new LocalProvider(0)) {
-            int mcp = RuntimeTest.freePort(), status = RuntimeTest.freePort();
+            int mcp = RuntimeTest.freePort();
             RuntimeTest helper = new RuntimeTest();
             helper.directory = directory;
             var config = helper.settings(archive, port, port, mcp, provider.port());
@@ -193,11 +208,10 @@ class PackagedRuntimeIT {
             process = builder.start();
             long end = System.nanoTime() + TimeUnit.SECONDS.toNanos(25);
             String state = null;
-            var http = HttpClient.newHttpClient();
             while (System.nanoTime() < end && process.isAlive()) {
                 try {
                     var response = http.send(
-                            HttpRequest.newBuilder(URI.create("http://127.0.0.1:" + status + "/api/v1/status"))
+                            HttpRequest.newBuilder(URI.create("http://127.0.0.1:" + status + "/api/v1/health/ready"))
                                     .timeout(java.time.Duration.ofSeconds(2))
                                     .GET()
                                     .build(),
@@ -206,7 +220,7 @@ class PackagedRuntimeIT {
                             .readTree(response.body())
                             .path("state")
                             .asText();
-                    if (state.equals("ready")) {
+                    if (response.statusCode() == 200) {
                         break;
                     }
                 } catch (java.io.IOException ignored) {
@@ -228,6 +242,7 @@ class PackagedRuntimeIT {
             process.destroy();
             assertTrue(process.waitFor(10, TimeUnit.SECONDS), Files.readString(log));
             assertEquals(1, deleted.get(), Files.readString(log));
+            assertEquals(503, readyWhileStopping.get(), "Readiness must fail before the forward is removed");
             assertEquals("Bearer management-fixture-token", managementAuth.get("GET"));
             assertEquals("Bearer management-fixture-token", managementAuth.get("DELETE"));
             assertFalse(Files.exists(directory.resolve("runtime.properties")));

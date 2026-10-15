@@ -10,6 +10,7 @@ import java.net.ServerSocket;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Base64;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
@@ -43,6 +44,8 @@ class RuntimeLifecycleTest {
                 registrations = new AtomicInteger(),
                 deletions = new AtomicInteger();
         var forward = new java.util.concurrent.atomic.AtomicReference<com.fasterxml.jackson.databind.JsonNode>();
+        var status = new java.util.concurrent.atomic.AtomicReference<RuntimeTest.StatusServer>();
+        var probesWhileStopping = new java.util.concurrent.atomic.AtomicReference<List<Integer>>();
         HttpServer control = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 16);
         var serverExecutor = Executors.newVirtualThreadPerTaskExecutor();
         control.setExecutor(serverExecutor);
@@ -65,6 +68,12 @@ class RuntimeLifecycleTest {
                         Map.of("data", Map.of("forward", Map.of("available", true), "tools_discovered", 1)));
                 stalled(exchange, registered, entered, release);
             } else if (exchange.getRequestMethod().equals("GET")) {
+                // Cancellation checks forward ownership here, after shutdown has begun.
+                try {
+                    probesWhileStopping.set(status.get().probes());
+                } catch (Exception e) {
+                    throw new java.io.IOException(e);
+                }
                 PreviewService.respond(exchange, 200, Map.of("data", forward.get()));
             } else {
                 deletions.incrementAndGet();
@@ -79,19 +88,27 @@ class RuntimeLifecycleTest {
         // The explicit stop must cancel startup before this longer HTTP timeout can expire.
         settings.setProperty("wsr.http.timeout-ms", "30000");
         try (var runtime = new SemanticRuntime(RuntimeSettings.from(settings));
+                var statusServer = RuntimeTest.StatusServer.start(runtime);
                 var executor = Executors.newVirtualThreadPerTaskExecutor()) {
+            status.set(statusServer);
             var starting = executor.submit(() -> {
                 runtime.start();
                 return null;
             });
             try {
                 assertTrue(entered.await(3, TimeUnit.SECONDS), "Startup must be awaiting the controlled HTTP response");
+                assertEquals(List.of(200, 503, 503), statusServer.probes(), "A starting runtime is live only");
                 var closing = executor.submit(() -> {
                     runtime.close();
                     return null;
                 });
                 closing.get(3, TimeUnit.SECONDS);
                 assertEquals("stopped", runtime.status().get("state"));
+                assertEquals(List.of(503, 503, 503), statusServer.probes());
+                assertEquals(
+                        registrationStage ? List.of(503, 503, 503) : null,
+                        probesWhileStopping.get(),
+                        "A cancelled startup must not stay live while it removes its forward");
                 release.countDown();
                 var failed = assertThrows(ExecutionException.class, () -> starting.get(3, TimeUnit.SECONDS));
                 assertInstanceOf(InterruptedException.class, failed.getCause());
