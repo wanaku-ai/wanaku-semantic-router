@@ -28,7 +28,7 @@ WSR checks archive paths, duplicate entries, expanded byte count, and entry coun
 
 The distribution supplies Camel components. WSR checks Camel declarations against packaged components before it creates a downloader. External expert dependencies require fixed release coordinates. The SDK resolves their compile and runtime dependencies into a private repository inside the extracted catalog directory. WSR rejects downloaded Camel libraries before it exposes the SDK classloader.
 
-Catalog normalization and GAV parsing stay in `Dependencies.readDeclarations`. WSR supplies a local Camel version default because its unreleased `4.23.0-SNAPSHOT` differs from the SDK's released default. Replace this default with `RuntimeVersionHelper.getVersions()` when the SDK supports the WSR Camel version. WSR compatibility checks and fixed release checks remain separate.
+Catalog normalization and GAV parsing stay in `Dependencies.readDeclarations`. WSR supplies a local Camel version default because its Camel `4.23.0` differs from the SDK's released default. Replace this default with `RuntimeVersionHelper.getVersions()` when the SDK supports the WSR Camel version. WSR compatibility checks and fixed release checks remain separate.
 
 WSR owns the downloader and its classloader. Shutdown closes the downloader before it removes extracted files. Resolution has a two-minute wait limit. On timeout, WSR interrupts the worker and closes the SDK downloader. Cancellation and resolver cleanup follow SDK behavior. The resolver does not run in a separate process.
 

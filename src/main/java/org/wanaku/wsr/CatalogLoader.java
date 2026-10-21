@@ -22,7 +22,7 @@ import ai.wanaku.capabilities.sdk.services.ServicesHttpClient;
 
 /** Loads one pinned Barn DataStore archive into a private, bounded extraction directory. */
 public final class CatalogLoader {
-    public static final String CAMEL_VERSION = "4.23.0-SNAPSHOT";
+    public static final String CAMEL_VERSION = "4.23.0";
 
     public record Catalog(
             Path root,

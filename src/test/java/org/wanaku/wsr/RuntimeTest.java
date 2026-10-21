@@ -237,7 +237,7 @@ class RuntimeTest {
         incompatible.put(
                 "support/semantic-router.properties",
                 new String(incompatible.get("support/semantic-router.properties"))
-                        .replace("4.23.0-SNAPSHOT", "4.22.1")
+                        .replace("4.23.0", "4.22.1")
                         .getBytes());
         byte[] changed = archive(incompatible);
         RuntimeSettings changedSettings = RuntimeSettings.from(settings(changed, 1, 1, 1, 1));

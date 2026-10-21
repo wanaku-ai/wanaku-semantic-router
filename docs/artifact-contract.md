@@ -19,7 +19,7 @@ The main file directory contains `semantic-router.properties`:
 ```properties
 contract.version=1
 catalog.revision=<revision>
-camel.version=4.23.0-SNAPSHOT
+camel.version=4.23.0
 camel.build=20261006.103638
 main=service/router.camel.yaml
 kamelets=service/kamelets/wsr-billing-action.kamelet.yaml,service/kamelets/wsr-technical-action.kamelet.yaml
@@ -43,13 +43,13 @@ The initial compatibility profile is `message-to-string/v1`. Each action receive
 
 ## Dependencies and experts
 
-The dependency file accepts `org.apache.camel:camel-component`, `camel:component`, `mvn:groupId:artifactId:version`, or a fixed release GAV. The distribution supplies the Camel components. The native `camel:core` shorthand uses the packaged `camel-core-engine`. An explicit Camel version must equal `4.23.0-SNAPSHOT`. A missing Camel component fails startup. External expert dependencies require a fixed release GAV. The SDK Maven downloader resolves their runtime dependencies before Camel starts. External dependencies cannot replace packaged Camel libraries. The packaged SDK resolver does not require the Maven CLI at runtime.
+The dependency file accepts `org.apache.camel:camel-component`, `camel:component`, `mvn:groupId:artifactId:version`, or a fixed release GAV. The distribution supplies the Camel components. The native `camel:core` shorthand uses the packaged `camel-core-engine`. An explicit Camel version must equal `4.23.0`. A missing Camel component fails startup. External expert dependencies require a fixed release GAV. The SDK Maven downloader resolves their runtime dependencies before Camel starts. External dependencies cannot replace packaged Camel libraries. The packaged SDK resolver does not require the Maven CLI at runtime.
 
 A GAV identifies an implementation dependency. `expert.bean` identifies a configured Camel registry bean. The deployment selects enabled expert beans and their implementation classes. Implementations must implement the native `SemanticAdapter` interface. Camel owns provider transport and semantic evaluation. WSR does not implement a separate evaluation engine.
 
 ## Verified Camel API
 
-The semantic artifact is `org.apache.camel:camel-semantic:4.23.0-SNAPSHOT`. The TypeSafe AI artifact is `org.apache.camel:camel-typesafe-ai:4.23.0-SNAPSHOT`. The Camel BOM manages these versions. Use artifacts containing [Camel PR #27494](https://github.com/apache/camel/pull/27494), merged on 2026-10-08. Its native API replaces `SemanticQuestion`/`SemanticQuestions` with `SemanticEvaluation`/`SemanticEvaluations`.
+The semantic artifact is `org.apache.camel:camel-semantic:4.23.0`. The TypeSafe AI artifact is `org.apache.camel:camel-typesafe-ai:4.23.0`. The Camel BOM manages these versions. Use artifacts containing [Camel PR #27494](https://github.com/apache/camel/pull/27494), merged on 2026-10-08. Its native API replaces `SemanticQuestion`/`SemanticQuestions` with `SemanticEvaluation`/`SemanticEvaluations`.
 
 Declare the routing evaluation as:
 
