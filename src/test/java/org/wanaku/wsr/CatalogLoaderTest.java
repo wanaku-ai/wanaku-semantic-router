@@ -93,7 +93,7 @@ class CatalogLoaderTest {
     void rejectsIncompatibleCamelVersion() throws Exception {
         var contents = RuntimeTest.reference();
         String manifest = new String(contents.get("support/semantic-router.properties"), StandardCharsets.UTF_8)
-                .replace("camel.version=4.23.0-SNAPSHOT", "camel.version=4.22.0");
+                .replace("camel.version=4.23.0", "camel.version=4.22.0");
         contents.put("support/semantic-router.properties", manifest.getBytes(StandardCharsets.UTF_8));
         byte[] archive = RuntimeTest.archive(contents);
         assertThrows(IOException.class, () -> extract(archive));

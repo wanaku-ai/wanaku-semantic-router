@@ -72,7 +72,7 @@ final class Dependencies implements AutoCloseable {
 
     private static List<GAV> readDeclarations(Path dependencies) throws IOException {
         // This local version-default setup duplicates CIC's SDK-based setup because WSR requires
-        // unreleased Camel 4.23.0-SNAPSHOT. SDK RuntimeVersionHelper supplies released Camel defaults.
+        // Camel 4.23.0, which differs from the Camel defaults that SDK RuntimeVersionHelper supplies.
         // Replace this default with RuntimeVersionHelper.getVersions() when the SDK supports WSR's
         // Camel version. Catalog syntax and compatibility checks remain WSR policy.
         List<GAV> declarations = new ArrayList<>();

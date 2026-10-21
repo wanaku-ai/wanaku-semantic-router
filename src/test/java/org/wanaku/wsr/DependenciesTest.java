@@ -30,7 +30,7 @@ class DependenciesTest {
     @Test
     void keepsPackagedCamelOnTheApplicationClassLoader() throws Exception {
         Path declarations = declaration("# packaged components\n\ncamel:core\norg.apache.camel:camel-semantic\n"
-                + "mvn:org.apache.camel:camel-typesafe-ai:4.23.0-SNAPSHOT\n");
+                + "mvn:org.apache.camel:camel-typesafe-ai:4.23.0\n");
         try (var dependencies = Dependencies.load(declarations, directory.resolve("resolved"))) {
             assertSame(Dependencies.class.getClassLoader(), dependencies.classLoader());
             assertNotNull(dependencies
