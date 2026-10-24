@@ -2,11 +2,17 @@ package org.wanaku.wsr;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 import picocli.CommandLine;
 import picocli.CommandLine.Model.CommandSpec;
@@ -204,15 +210,55 @@ final class RuntimeCommand implements Callable<Integer> {
             throw CliConfiguration.invalid(spec, e);
         }
         try (var runtime = new SemanticRuntime(settings)) {
-            return run(runtime, createStatusServer(runtime, deployment, statusPort));
+            return run(
+                    runtime,
+                    createStatusServer(runtime, deployment.getProperty("wsr.status.bind", "127.0.0.1"), statusPort));
         }
     }
 
-    private HttpServer createStatusServer(SemanticRuntime runtime, Properties deployment, int port) throws IOException {
-        HttpServer status = HttpServer.create(
-                new InetSocketAddress(deployment.getProperty("wsr.status.bind", "127.0.0.1"), port), 16);
-        status.createContext("/api/v1/status", exchange -> PreviewService.respond(exchange, 200, runtime.status()));
+    static HttpServer createStatusServer(SemanticRuntime runtime, String bind, int port) throws IOException {
+        HttpServer status = HttpServer.create(new InetSocketAddress(bind, port), 16);
+        status.createContext("/api/v1/status", exchange -> {
+            if (exactPath(exchange, "/api/v1/status")) {
+                PreviewService.respond(exchange, 200, runtime.status());
+            }
+        });
+        for (String probe : List.of("live", "ready", "started")) {
+            String path = "/api/v1/health/" + probe;
+            status.createContext(path, exchange -> {
+                if (!exactPath(exchange, path)) {
+                    return;
+                }
+                if (!exchange.getRequestMethod().equals("GET")) {
+                    exchange.getResponseHeaders().set("Allow", "GET");
+                    PreviewService.respond(exchange, 405, Map.of("error", "Use GET"));
+                    return;
+                }
+                PreviewService.respond(exchange, runtime.healthy(probe) ? 200 : 503, runtime.status());
+            });
+        }
         return status;
+    }
+
+    private static boolean exactPath(HttpExchange exchange, String path) throws IOException {
+        if (exchange.getRequestURI().getPath().equals(path)) {
+            return true;
+        }
+        PreviewService.respond(exchange, 404, Map.of("error", "Not found"));
+        return false;
+    }
+
+    /** Kubernetes shows this file as the container termination message; it is best effort. */
+    static void writeTerminationLog(byte[] status) {
+        Path log = Path.of(System.getProperty("wsr.termination-log", "/dev/termination-log"));
+        if (!Files.isWritable(log)) {
+            return;
+        }
+        try {
+            Files.write(log, Arrays.copyOf(status, Math.min(status.length, 4096)));
+        } catch (IOException ignored) {
+            // The status JSON is already on stderr; FallbackToLogsOnError covers this case.
+        }
     }
 
     private int run(SemanticRuntime runtime, HttpServer status) throws Exception {
@@ -236,7 +282,9 @@ final class RuntimeCommand implements Callable<Integer> {
         } catch (LocalArtifacts.InvalidInput e) {
             throw CliConfiguration.invalid(spec, e);
         } catch (Exception e) {
-            spec.commandLine().getErr().println(new ObjectMapper().writeValueAsString(runtime.status()));
+            byte[] status = new ObjectMapper().writeValueAsBytes(runtime.status());
+            spec.commandLine().getErr().println(new String(status, StandardCharsets.UTF_8));
+            writeTerminationLog(status);
             throw e;
         }
     }

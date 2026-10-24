@@ -16,6 +16,8 @@ spec:
       labels:
         app: wsr
     spec:
+      # Allow shutdown to finish forward deregistration and the Camel stop.
+      terminationGracePeriodSeconds: 60
       securityContext:
         runAsNonRoot: true
       containers:
@@ -40,6 +42,11 @@ spec:
               value: http://wsr:8090/mcp
             - name: WSR_BIND
               value: 0.0.0.0
+            # The kubelet sends probes to the pod IP. Do not expose this port through the Service.
+            - name: WSR_STATUS_BIND
+              value: 0.0.0.0
+            - name: WSR_STATUS_PORT
+              value: "8091"
             - name: WSR_DATA_DIR
               value: /home/wsr/tmp
             - name: TYPESAFE_API_KEY
@@ -56,6 +63,27 @@ spec:
           ports:
             - name: mcp
               containerPort: 8090
+            - name: status
+              containerPort: 8091
+          # Dependency resolution can be slow on first start.
+          startupProbe:
+            httpGet:
+              path: /api/v1/health/started
+              port: status
+            periodSeconds: 5
+            failureThreshold: 120
+          readinessProbe:
+            httpGet:
+              path: /api/v1/health/ready
+              port: status
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /api/v1/health/live
+              port: status
+            periodSeconds: 20
+            failureThreshold: 3
+          terminationMessagePolicy: FallbackToLogsOnError
 ---
 apiVersion: v1
 kind: Service

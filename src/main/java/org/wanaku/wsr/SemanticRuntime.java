@@ -167,6 +167,23 @@ public final class SemanticRuntime implements AutoCloseable {
         }
     }
 
+    /** Probe result for {@code live}, {@code ready} or {@code started}; docs/deployment.md has the contract. */
+    boolean healthy(String probe) {
+        // Read the volatile state first: it publishes the Camel context written before it.
+        String current = stopping.get() ? "stopping" : state;
+        boolean ready = current.equals("ready");
+        boolean camelStarted = ready
+                && main != null
+                && main.getCamelContext() != null
+                && main.getCamelContext().isStarted();
+        return switch (probe) {
+            case "live" -> current.equals("starting") || camelStarted;
+            case "ready" -> camelStarted;
+            case "started" -> ready;
+            default -> throw new IllegalArgumentException("Unknown probe: " + probe);
+        };
+    }
+
     public Map<String, Object> status() {
         var values = new java.util.LinkedHashMap<String, Object>();
         values.put("state", state);
