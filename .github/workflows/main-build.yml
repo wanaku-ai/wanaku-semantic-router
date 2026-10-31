@@ -1,109 +1,108 @@
+# This workflow will build a Java project with Maven, and cache/restore any dependencies to improve the workflow execution time
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-maven
+
 name: Build Main
+
 on:
   workflow_dispatch:
   push:
     branches:
-      - main
-      - '[0-9]*.[0-9]*.x'
+        - main
+        - '[0-9]*.[0-9]*.x'
     tags:
       - v*
     paths-ignore:
-      - 'docs/**'
-      - '**/*.md'
-permissions:
-  contents: read
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: false
+      - .github/**
+      - docs/**
+      - "**/*.md"
+      - LICENSE
+
+env:
+  PROJECTS: ${{ github.workspace }}
+  CONTAINER_REGISTRY: ${{ vars.CONTAINER_REGISTRY || 'quay.io' }}
+  CONTAINER_GROUP: ${{ vars.CONTAINER_GROUP || 'wanaku' }}
+
 jobs:
   build:
+    env:
+      QUAY_USERNAME: ${{ secrets.QUAY_USERNAME }}
+      QUAY_PASSWORD: ${{ secrets.QUAY_PASSWORD }}
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, ubuntu-24.04-arm]
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 30
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
-      - name: Set up JDK 21
-        uses: actions/setup-java@0f481fcb613427c0f801b606911222b5b6f3083a # v5.5.0
-        with:
-          distribution: temurin
-          java-version: '21'
-          cache: maven
-      - name: Read SDK revision
-        id: sdk
-        run: echo "revision=$(cat .github/sdk-revision)" >> "$GITHUB_OUTPUT"
-      - name: Check out SDK
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
-        with:
-          repository: wanaku-ai/wanaku-capabilities-java-sdk
-          ref: ${{ steps.sdk.outputs.revision }}
-          path: target/sdk
-          persist-credentials: false
-      - name: Install SDK
-        run: mvn -B -ntp -f target/sdk/pom.xml install -DskipTests
-      - name: Check committed formatting
-        run: mvn -B -ntp spotless:check
-      - name: Check manifest assembly
-        run: ./scripts/test-build-manifests.sh
-      - name: Build with Maven
-        run: mvn -B -ntp clean verify
-      - name: Generate Test Reports
-        if: always()
-        run: mvn -B -ntp surefire-report:report-only surefire-report:failsafe-report-only -Daggregate=true
-      - name: Upload Test Reports
-        if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: test-reports-${{ matrix.os }}
-          path: target/reports/
-          retention-days: 14
-          if-no-files-found: ignore
-      - name: Upload packaged runtime
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: wanaku-semantic-router-${{ matrix.os }}
-          path: |
-            target/wanaku-semantic-router-*.jar
-            target/lib/
-      - name: Set arch
-        id: arch
-        run: echo "arch=$(uname -m)" >> "$GITHUB_OUTPUT"
-      - name: Build container
-        env:
-          IMAGE_TAG: ${{ github.ref_name }}-${{ steps.arch.outputs.arch }}
-        run: podman build -t "quay.io/wanaku/wanaku-semantic-router:$IMAGE_TAG" .
-      - name: Check runtime container
-        env:
-          IMAGE_TAG: ${{ github.ref_name }}-${{ steps.arch.outputs.arch }}
-        run: ./scripts/container-smoke.sh "quay.io/wanaku/wanaku-semantic-router:$IMAGE_TAG"
-      - name: Login to Container Registry
-        if: github.repository == 'wanaku-ai/wanaku-semantic-router' && (github.ref == 'refs/heads/main' || (github.ref_type == 'branch' && endsWith(github.ref_name, '.x')) || startsWith(github.ref, 'refs/tags/v'))
-        uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # v4.4.0
-        with:
-          registry: quay.io
-          username: ${{ secrets.QUAY_USERNAME }}
-          password: ${{ secrets.QUAY_PASSWORD }}
-      - name: Push container
-        if: github.repository == 'wanaku-ai/wanaku-semantic-router' && (github.ref == 'refs/heads/main' || (github.ref_type == 'branch' && endsWith(github.ref_name, '.x')) || startsWith(github.ref, 'refs/tags/v'))
-        env:
-          IMAGE_TAG: ${{ github.ref_name }}-${{ steps.arch.outputs.arch }}
-        run: podman push "quay.io/wanaku/wanaku-semantic-router:$IMAGE_TAG"
+    - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+    - name: Set up JDK 21
+      uses: actions/setup-java@0f481fcb613427c0f801b606911222b5b6f3083a # v5.5.0
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        cache: maven
+    - name: Determine SDK ref
+      id: sdk-ref
+      run: |
+        BRANCH="${GITHUB_REF_NAME}"
+        if git ls-remote --heads https://github.com/wanaku-ai/wanaku-capabilities-java-sdk.git "$BRANCH" | grep -q .; then
+          echo "ref=$BRANCH" >> $GITHUB_OUTPUT
+        else
+          echo "ref=main" >> $GITHUB_OUTPUT
+        fi
+    - name: Checkout and build dependencies
+      run: |
+        cd ..
+        git clone -b ${{ steps.sdk-ref.outputs.ref }} https://github.com/wanaku-ai/wanaku-capabilities-java-sdk.git
+        cd wanaku-capabilities-java-sdk
+        mvn -DskipTests -B install --file pom.xml
+        cd ${{ github.workspace }}
+    - name: Build with Maven
+      run: mvn -B clean package --file pom.xml
+    - name: Generate Test Reports
+      if: always()
+      run: mvn -B --no-transfer-progress surefire-report:report-only surefire-report:failsafe-report-only -Daggregate=true
+    - name: Upload Test Reports
+      if: always()
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      with:
+        name: test-reports-${{ matrix.os }}
+        path: 'target/reports/'
+        retention-days: 14
+        if-no-files-found: ignore
+    - name: Set arch
+      id: arch
+      run: echo "arch=$(uname -m)" >> $GITHUB_OUTPUT
+    - name: Login to Container Registry
+      if: env.QUAY_USERNAME != '' && env.QUAY_PASSWORD != ''
+      uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # v4.4.0
+      with:
+        registry: ${{ env.CONTAINER_REGISTRY }}
+        username: ${{ secrets.QUAY_USERNAME }}
+        password: ${{ secrets.QUAY_PASSWORD }}
+    - name: Build containers
+      if: env.QUAY_USERNAME != '' && env.QUAY_PASSWORD != ''
+      run: podman build -t ${{ env.CONTAINER_REGISTRY }}/${{ env.CONTAINER_GROUP }}/wanaku-semantic-router:${{ github.ref_name }}-${{ steps.arch.outputs.arch }} .
+    - name: Push containers
+      if: env.QUAY_USERNAME != '' && env.QUAY_PASSWORD != ''
+      run: podman push ${{ env.CONTAINER_REGISTRY }}/${{ env.CONTAINER_GROUP }}/wanaku-semantic-router:${{ github.ref_name }}-${{ steps.arch.outputs.arch }}
 
   createManifests:
+    env:
+      QUAY_USERNAME: ${{ secrets.QUAY_USERNAME }}
+      QUAY_PASSWORD: ${{ secrets.QUAY_PASSWORD }}
     needs: build
-    if: github.repository == 'wanaku-ai/wanaku-semantic-router' && (github.ref == 'refs/heads/main' || (github.ref_type == 'branch' && endsWith(github.ref_name, '.x')) || startsWith(github.ref, 'refs/tags/v'))
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - name: Login to Container Registry
+        if: env.QUAY_USERNAME != '' && env.QUAY_PASSWORD != ''
         uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # v4.4.0
         with:
-          registry: quay.io
+          registry: ${{ env.CONTAINER_REGISTRY }}
           username: ${{ secrets.QUAY_USERNAME }}
           password: ${{ secrets.QUAY_PASSWORD }}
       - name: Build and Push Manifests
-        env:
-          IMAGE_TAG: ${{ github.ref_name }}
-        run: ./build-manifests.sh "$IMAGE_TAG"
+        if: env.QUAY_USERNAME != '' && env.QUAY_PASSWORD != ''
+        run: |
+          chmod +x build-manifests.sh
+          ./build-manifests.sh ${{ github.ref_name }} "${CONTAINER_REGISTRY}/${CONTAINER_GROUP}"

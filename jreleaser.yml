@@ -2,6 +2,7 @@ project:
   name: wanaku-semantic-router
   description: Wanaku Semantic Router
   longDescription: Semantic routing for the Wanaku MCP ecosystem using Apache Camel.
+
   authors:
     - The Wanaku Development Team
   license: Apache-2.0
@@ -14,9 +15,11 @@ project:
       version: 21
   inceptionYear: 2026
   tags:
-    - ai
-    - mcp
-    - java
+    - 'ai'
+    - 'mcp'
+    - 'java'
+    - 'agentic'
+    - 'agents'
 
 signing:
   active: ALWAYS
@@ -24,16 +27,15 @@ signing:
 release:
   github:
     owner: wanaku-ai
-    tagName: '{{projectName}}-{{projectEffectiveVersion}}'
     overwrite: false
     issues:
       enabled: true
     update:
       enabled: true
-    skipTag: false
+    skipTag: true
 
 distributions:
   wanaku-semantic-router:
-    type: JAVA_BINARY
     artifacts:
-      - path: target/wanaku-semantic-router-{{projectVersion}}.zip
+      - path: ./target/wanaku-semantic-router-{{projectVersion}}.zip
+    type: JAVA_BINARY
