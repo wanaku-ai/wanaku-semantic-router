@@ -34,3 +34,18 @@ For a release, dispatch `release` with a release version without `-SNAPSHOT`, th
 After the release completes, dispatch `release-artifacts` with the same release version (`0.1.0`) to build the tagged containers. GitHub-token pushes do not automatically trigger another workflow.
 
 The release ZIP contains the application JAR and its `lib/` directory. Extract both into the same directory and run `java -jar wanaku-semantic-router-VERSION.jar` with the desired command.
+
+# Native architecture builds
+
+The CI build follows the Camel Integration Capability container convention. Each native runner builds and verifies Maven artifacts before it builds the image with Podman. `ubuntu-latest` builds `x86_64`. `ubuntu-24.04-arm` builds `aarch64`. Pull request builds run the container checks on both runners. Pull request builds do not log in to Quay or publish images.
+
+The `Build Main` workflow publishes images from `main` and `v*` tags in `wanaku-ai/wanaku-semantic-router`. It uses the `QUAY_USERNAME` and `QUAY_PASSWORD` repository secrets. The registry account must have write access to `quay.io/wanaku/wanaku-semantic-router`.
+
+The workflow publishes an image for each architecture:
+
+| Git reference | x86_64 tag | aarch64 tag | Combined manifest |
+| --- | --- | --- | --- |
+| `main` | `main-x86_64` | `main-aarch64` | `latest` |
+| `v0.1.0` | `v0.1.0-x86_64` | `v0.1.0-aarch64` | `v0.1.0` |
+
+`images.txt` lists the combined image name. `build-manifests.sh` creates and pushes the combined manifest after both native image pushes succeed. The manifest lets the container engine select the host architecture. Use a combined manifest digest when deployment must retain both architectures. Use an architecture image digest when deployment uses one architecture.

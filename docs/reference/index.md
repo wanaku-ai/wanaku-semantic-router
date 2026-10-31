@@ -1,10 +1,12 @@
 # Wanaku Semantic Router reference
 
-These pages describe the contracts between Wanaku Semantic Router (WSR), Barn, and Apache Camel.
+These pages describe the settings of Wanaku Semantic Router (WSR) and its contracts with Barn and Apache Camel.
 
 ## Pages in this section
 
-- [Artifact and execution contract](artifact-contract.md): the catalog layout, dependencies, the Camel semantic API, and the preview contract.
+- [Runtime configuration](configuration.md): environment settings, command options, the properties file, limits, and the status endpoint.
+- [Artifact and execution contract](artifact-contract.md): the catalog layout, dependencies, and the Camel semantic API.
+- [Semantic evaluation preview API](preview-api.md): the preview request, the response, and the errors.
 
 ## Next steps
 
