@@ -38,4 +38,4 @@ A completed clone moves into the final checkout directory. A failed initializati
 
 Initialization supplies deployment files. The runtime still verifies and loads its executable routes from the pinned Barn archive. Route-name startup resolves the fixed publication from Barn before this verification. It does not execute YAML files from the initialized repository. The preview service loads no action routes.
 
-WSR reuses the released SDK initializer, retry, catalog model, and JSON serializer APIs. It excludes the SDK runtime module's transitive dependencies. It supplies JGit and the SDK common module explicitly. The WSR Camel BOM manages Camel dependency versions. See [SDK reuse](sdk-reuse.md) for the dependency boundary.
+WSR reuses the released SDK initializer, retry, catalog model, and JSON serializer APIs. It excludes the SDK runtime module's transitive dependencies. It supplies JGit and the SDK common module explicitly. The WSR Camel BOM manages Camel dependency versions. See [SDK reuse](../contributing/sdk-reuse.md) for the dependency boundary.

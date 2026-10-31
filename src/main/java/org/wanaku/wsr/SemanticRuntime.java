@@ -167,7 +167,7 @@ public final class SemanticRuntime implements AutoCloseable {
         }
     }
 
-    /** Probe result for {@code live}, {@code ready} or {@code started}; docs/deployment.md has the contract. */
+    /** Probe result for {@code live}, {@code ready} or {@code started}; docs/operate/deployment.md has the contract. */
     boolean healthy(String probe) {
         // Read the volatile state first: it publishes the Camel context written before it.
         String current = stopping.get() ? "stopping" : state;

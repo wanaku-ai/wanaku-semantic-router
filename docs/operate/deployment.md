@@ -197,7 +197,7 @@ java -jar target/wanaku-semantic-router-0.3.0-SNAPSHOT.jar preview \
   --property 'camel.component.typesafe-ai.model={{env:TYPESAFE_MODEL}}'
 ```
 
-Set `WSR_PREVIEW_TOKEN`, `TYPESAFE_API_KEY`, and `TYPESAFE_MODEL` in the process environment before startup. Set Barn's preview URL to `http://wsr-preview:8092/api/v1/preview`. Configure the matching token reference in Barn. The service creates an isolated Camel context per request without action routes. Barn must send `expertBean`, `operation`, optional `parameters` (default `{}`), and `state`; read `resultType`, typed `value`, and `diagnostics` from the response. See [the preview contract](artifact-contract.md#preview-boundary). Migrate old preview clients and republish catalogs using `semantic.evaluation` before deploying this runtime; it does not translate old question YAML.
+Set `WSR_PREVIEW_TOKEN`, `TYPESAFE_API_KEY`, and `TYPESAFE_MODEL` in the process environment before startup. Set Barn's preview URL to `http://wsr-preview:8092/api/v1/preview`. Configure the matching token reference in Barn. The service creates an isolated Camel context per request without action routes. Barn must send `expertBean`, `operation`, optional `parameters` (default `{}`), and `state`; read `resultType`, typed `value`, and `diagnostics` from the response. See [the preview contract](../reference/artifact-contract.md#preview-boundary). Migrate old preview clients and republish catalogs using `semantic.evaluation` before deploying this runtime; it does not translate old question YAML.
 
 | Preview option | Property | Default |
 | --- | --- | --- |
@@ -209,7 +209,7 @@ Set `WSR_PREVIEW_TOKEN`, `TYPESAFE_API_KEY`, and `TYPESAFE_MODEL` in the process
 
 ## Kubernetes and OpenShift
 
-Use [the deployment example](../config/kubernetes.yaml.example) to supply the route name and service addresses through environment settings. The container needs only the `runtime` command. Provider credentials use Secret references. The example needs no properties file or ConfigMap. Replace its image and route name. Use an image that your cluster can pull. Create the referenced `wsr-provider` Secret with the key `api-key`. Its `model` key is optional. Apply the Deployment and Service in the namespace that contains the referenced Barn and Wanaku services.
+Use [the deployment example](https://github.com/wanaku-ai/wanaku-semantic-router/blob/main/config/kubernetes.yaml.example) to supply the route name and service addresses through environment settings. The container needs only the `runtime` command. Provider credentials use Secret references. The example needs no properties file or ConfigMap. Replace its image and route name. Use an image that your cluster can pull. Create the referenced `wsr-provider` Secret with the key `api-key`. Its `model` key is optional. Apply the Deployment and Service in the namespace that contains the referenced Barn and Wanaku services.
 
 The Service address `http://wsr:8090/mcp` must be reachable from Wanaku. The example sets `WSR_STATUS_BIND=0.0.0.0` because the kubelet sends probes to the pod IP. Do not publish the status port through a Service. Use separate Deployments for runtime and preview. Add the preview token to its Secret and configure Barn with the matching reference.
 
@@ -286,7 +286,7 @@ The image creates the `wsr` user with UID 10001 and root group membership. Its w
 
 A custom `--work-directory` must be writable by the process UID or its assigned groups.
 
-The packaged SDK Maven downloader resolves external non-Camel dependencies from Maven Central. It does not require the Maven CLI. It does not read `settings.xml`. WSR waits up to two minutes for resolution. On timeout, it interrupts the worker and closes the downloader. Cancellation follows SDK resolver behavior. See [SDK reuse](sdk-reuse.md) for repository and cleanup limits.
+The packaged SDK Maven downloader resolves external non-Camel dependencies from Maven Central. It does not require the Maven CLI. It does not read `settings.xml`. WSR waits up to two minutes for resolution. On timeout, it interrupts the worker and closes the downloader. Cancellation follows SDK resolver behavior. See [SDK reuse](../contributing/sdk-reuse.md) for repository and cleanup limits.
 
 Run the container checks after the image build:
 
@@ -355,7 +355,7 @@ snapshot contains the native `injection` operation and `modelDirectory` property
 
 ## Local files without Barn
 
-The runtime accepts a local path or `file:` URI through `--routes-ref`. Barn publication, a Barn URL, a catalog index and catalog revision/digest pins are unnecessary. Wanaku registration remains required. Keep `semantic-router.properties` beside the route; WSR needs its expert bean, tool name, input profile, Kamelets and action configuration. The [artifact contract](artifact-contract.md) applies to these resources as well.
+The runtime accepts a local path or `file:` URI through `--routes-ref`. Barn publication, a Barn URL, a catalog index and catalog revision/digest pins are unnecessary. Wanaku registration remains required. Keep `semantic-router.properties` beside the route; WSR needs its expert bean, tool name, input profile, Kamelets and action configuration. The [artifact contract](../reference/artifact-contract.md) applies to these resources as well.
 
 This complete example uses the repository's support route fixtures (the actions return demonstration responses). Run it from the repository root after `mvn verify`. Set `TYPESAFE_API_KEY` to your provider credential first:
 

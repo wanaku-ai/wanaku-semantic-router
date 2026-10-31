@@ -1,0 +1,28 @@
+{
+  "sidebar": [
+    {
+      "text": "Run WSR",
+      "link": "operate/",
+      "items": [
+        { "text": "Deployment", "link": "operate/deployment" },
+        { "text": "Initialize from Git", "link": "operate/initialize-from-git" }
+      ]
+    },
+    {
+      "text": "Reference",
+      "link": "reference/",
+      "items": [
+        { "text": "Artifact and execution contract", "link": "reference/artifact-contract" }
+      ]
+    },
+    {
+      "text": "Contribute",
+      "link": "contributing/",
+      "collapsed": true,
+      "items": [
+        { "text": "CI automation", "link": "contributing/ci" },
+        { "text": "Java SDK reuse", "link": "contributing/sdk-reuse" }
+      ]
+    }
+  ]
+}
