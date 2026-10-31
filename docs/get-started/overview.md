@@ -1,3 +1,8 @@
+---
+title: How Wanaku Semantic Router works
+description: How Wanaku Semantic Router loads one pinned catalog revision, registers its MCP tool with Wanaku, handles tool calls, and forwards audit records.
+---
+
 # How Wanaku Semantic Router works
 
 Wanaku Semantic Router (WSR) runs a Barn catalog as an Apache Camel application. Barn authors and publishes the integration. Camel evaluates its semantic evaluations and executes fixed Kamelet branches. Wanaku discovers and governs the public MCP tool.

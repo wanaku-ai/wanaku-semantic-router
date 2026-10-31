@@ -1,3 +1,8 @@
+---
+title: Run WSR in a container
+description: Build the Wanaku Semantic Router (WSR) container image, run it with Podman, check the image with the smoke script, and find the published image tags.
+---
+
 # Run WSR in a container
 
 This page describes how to build the WSR container image, run it, and check it.

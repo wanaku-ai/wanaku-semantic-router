@@ -1,3 +1,8 @@
+---
+title: Run the semantic evaluation preview
+description: Start the Wanaku Semantic Router preview service that Barn calls to test a semantic evaluation, with its token, timeout, and concurrency options.
+---
+
 # Run the semantic evaluation preview
 
 Barn uses the preview service to test a semantic evaluation before it publishes a route. The service evaluates one request without action routes or Kamelets.

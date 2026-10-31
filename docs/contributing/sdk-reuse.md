@@ -1,3 +1,8 @@
+---
+title: Java SDK reuse
+description: The parts of the Wanaku Capabilities Java SDK that Wanaku Semantic Router uses for catalogs, archive extraction, dependencies, and initialization.
+---
+
 # Java SDK reuse
 
 WSR uses the Wanaku Capabilities Java SDK for catalog requests, archive extraction, dependency resolution, Git initialization, retry policy, and JSON serialization.
@@ -41,3 +46,8 @@ WSR uses `capabilities-runtimes-camel-common` for initialization, retry, and arc
 WSR retains its forward registration implementation. Registration records revision, digest, and instance labels. Shutdown checks instance ownership before it removes a forward. The SDK forward contract does not provide these labels.
 
 See [initialization](../operate/initialize-from-git.md) for command options and startup behavior. Initialized deployment files do not bypass Barn artifact checks.
+
+## Next steps
+
+- [Initialize WSR from Git](../operate/initialize-from-git.md): the startup step that uses the SDK initializer.
+- [Build Wanaku Semantic Router](building.md): install the SDK revision before the build.

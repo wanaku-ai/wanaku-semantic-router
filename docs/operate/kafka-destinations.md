@@ -1,3 +1,8 @@
+---
+title: Send messages to Kafka destinations
+description: Use a Kafka sink Kamelet as a semantic route destination in Wanaku Semantic Router, and supply its broker settings and password from the environment.
+---
+
 # Send messages to Kafka destinations
 
 A semantic route can select a Kafka sink Kamelet as a destination. This page describes how to configure the Kamelet and its credentials.

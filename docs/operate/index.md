@@ -1,3 +1,8 @@
+---
+title: Run Wanaku Semantic Router
+description: "Run the Wanaku Semantic Router runtime and preview service: start a published route, configure experts and audit, and deploy it on Kubernetes."
+---
+
 # Run Wanaku Semantic Router
 
 These pages describe how to run the Wanaku Semantic Router (WSR) runtime and preview service in a deployment.

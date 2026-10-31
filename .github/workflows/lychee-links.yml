@@ -8,6 +8,9 @@ on:
       - '**/*.md'
       - '.lycheeignore'
       - '.github/workflows/lychee-links.yml'
+      - 'docs/nav.json'
+      - 'docs/redirects.txt'
+      - '.github/check-docs-nav.py'
   pull_request:
     branches:
       - main
@@ -15,6 +18,9 @@ on:
       - '**/*.md'
       - '.lycheeignore'
       - '.github/workflows/lychee-links.yml'
+      - 'docs/nav.json'
+      - 'docs/redirects.txt'
+      - '.github/check-docs-nav.py'
 
 permissions:
   contents: read
@@ -34,3 +40,11 @@ jobs:
             --exclude-path target
             '**/*.md'
           fail: true
+
+  docs-conventions:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Check docs navigation and frontmatter
+        run: python3 .github/check-docs-nav.py

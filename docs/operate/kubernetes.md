@@ -1,3 +1,8 @@
+---
+title: Deploy on Kubernetes and OpenShift
+description: Run the Wanaku Semantic Router runtime on Kubernetes or OpenShift with the example Deployment, the health probes, and safe rolling updates.
+---
+
 # Deploy on Kubernetes and OpenShift
 
 This page describes how to run the WSR runtime on Kubernetes or OpenShift, with the example Deployment and the health probes.

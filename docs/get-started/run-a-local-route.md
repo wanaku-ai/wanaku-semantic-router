@@ -1,3 +1,8 @@
+---
+title: Run a route from local files
+description: Build Wanaku Semantic Router and start the support route fixtures from local files without Barn, then see the tool that it registers in Wanaku.
+---
+
 # Run a route from local files
 
 This tutorial starts WSR from the support route fixtures in this repository, without Barn. At the end, Wanaku lists the `route_support` tool from the `local-support` forward.

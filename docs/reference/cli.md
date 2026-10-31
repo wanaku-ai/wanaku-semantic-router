@@ -1,3 +1,8 @@
+---
+title: Command line
+description: The runtime and preview commands of Wanaku Semantic Router, the order in which settings apply, the exit codes, and the help and version options.
+---
+
 # Command line
 
 This page describes the `runtime` and `preview` commands, the order in which settings apply, and the exit codes.
