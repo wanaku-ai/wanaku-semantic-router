@@ -1,0 +1,5 @@
+deployment operate/deployment
+initialization operate/initialize-from-git
+artifact-contract reference/artifact-contract
+ci contributing/ci
+sdk-reuse contributing/sdk-reuse

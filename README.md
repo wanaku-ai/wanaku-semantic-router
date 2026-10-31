@@ -19,7 +19,7 @@ The build creates `target/wanaku-semantic-router-0.3.0-SNAPSHOT.jar` and `target
 
 The runtime uses Camel `4.23.0` artifacts, which contain [PR #27494](https://github.com/apache/camel/pull/27494). Republish catalogs using `semantic.evaluation`; old `semantic.question` YAML is incompatible. Migrate Barn preview clients to the new request and response contract before deployment. The Camel BOM manages all Camel dependency versions. Preserve the complete packaged distribution or container image digest to reproduce a deployment.
 
-See [the contract](docs/artifact-contract.md) for the verified native APIs. See [deployment](docs/deployment.md) for runtime and preview setup. See [health probes](docs/deployment.md#health-probes) for the startup, readiness, and liveness contract. See [SDK reuse](docs/sdk-reuse.md) for shared catalog transport, extraction, and dependency resolution.
+See [the contract](docs/reference/artifact-contract.md) for the verified native APIs. See [deployment](docs/operate/deployment.md) for runtime and preview setup. See [health probes](docs/operate/deployment.md#health-probes) for the startup, readiness, and liveness contract. See [SDK reuse](docs/contributing/sdk-reuse.md) for shared catalog transport, extraction, and dependency resolution.
 
 The build applies the CIC Spotless rules during compilation. It uses Palantir Java Format and explicit imports. Use braces for control blocks. Apply formatting before you submit changes. Check committed formatting before you build a release.
 
@@ -30,7 +30,7 @@ mvn -B -ntp spotless:check
 
 ## Command line
 
-Start a published semantic route by its Barn name. Set `TYPESAFE_API_KEY` in the process environment for the default TypeSafe AI expert. A deployment properties file is optional. Use [deployment](docs/deployment.md) for environment settings and a Kubernetes/OpenShift example.
+Start a published semantic route by its Barn name. Set `TYPESAFE_API_KEY` in the process environment for the default TypeSafe AI expert. A deployment properties file is optional. Use [deployment](docs/operate/deployment.md) for environment settings and a Kubernetes/OpenShift example.
 
 ```sh
 java -jar target/wanaku-semantic-router-0.3.0-SNAPSHOT.jar --help
@@ -48,13 +48,13 @@ Each command accepts `--help` (`-h`) and `--version` (`-V`). These options do no
 
 The CLI returns `0` for help and version output. It returns `2` for invalid arguments or invalid deployment settings. It returns `1` for startup or execution failures. Configuration validation errors omit supplied values. Operational errors report the failure type and runtime status without provider error messages. Stop a running service with `SIGTERM` or `Ctrl+C`. The shutdown hook closes the service and removes the runtime forward when that process owns it.
 
-Use `--init-from` to initialize deployment files from Git before service startup. Use `--data-dir` to select runtime catalog storage and the initialization directory. WSR uses the SDK initializer and retry policy. See [initialization](docs/initialization.md) for source, cache, and timeout behavior. Runtime routes come from the selected Barn publication or local resources.
+Use `--init-from` to initialize deployment files from Git before service startup. Use `--data-dir` to select runtime catalog storage and the initialization directory. WSR uses the SDK initializer and retry policy. See [initialization](docs/operate/initialize-from-git.md) for source, cache, and timeout behavior. Runtime routes come from the selected Barn publication or local resources.
 
-For startup without Barn, use `runtime --routes-ref file:///path/to/router.camel.yaml --dependencies file:///path/to/dependencies.txt` with an adjacent semantic manifest and Wanaku deployment settings. See the [complete local launch example](docs/deployment.md#local-files-without-barn).
+For startup without Barn, use `runtime --routes-ref file:///path/to/router.camel.yaml --dependencies file:///path/to/dependencies.txt` with an adjacent semantic manifest and Wanaku deployment settings. See the [complete local launch example](docs/operate/deployment.md#local-files-without-barn).
 
 ## Runtime behavior
 
-WSR enables Camel's semantic audit capture and forwards records to Wanaku with bounded retries, preserving typed results and evidence IDs. Capture and forwarding default on and are controlled by `--audit-enabled`; catalogs need no audit configuration. See [audit forwarding](docs/deployment.md#semantic-audit-forwarding) for receiver setup and delivery limits.
+WSR enables Camel's semantic audit capture and forwards records to Wanaku with bounded retries, preserving typed results and evidence IDs. Capture and forwarding default on and are controlled by `--audit-enabled`; catalogs need no audit configuration. See [audit forwarding](docs/operate/deployment.md#semantic-audit-forwarding) for receiver setup and delivery limits.
 
 One process loads one selected service from one fixed catalog revision. It downloads the Barn `DataStore` ZIP through the existing catalog endpoint. It checks the SHA-256 digest, revision, Camel version, main file, and auxiliary resources. It loads action settings and named expert beans before Camel starts.
 
@@ -64,7 +64,7 @@ The MCP tool accepts `message`, a required string. A selected branch returns the
 
 ## Semantic evaluation preview
 
-The `preview` process exposes `POST /api/v1/preview`. Supply an enabled `expertBean`, an `operation`, optional expert-owned `parameters`, and `state`. It creates a separate Camel context and evaluates the native `SemanticEvaluation` contract without action routes or Kamelets. It returns `resultType`, a typed `value` (boolean, choice string, score number, or classification labels), and only the diagnostics supplied by the expert. See [the preview contract](docs/artifact-contract.md#preview-boundary) for examples and errors.
+The `preview` process exposes `POST /api/v1/preview`. Supply an enabled `expertBean`, an `operation`, optional expert-owned `parameters`, and `state`. It creates a separate Camel context and evaluates the native `SemanticEvaluation` contract without action routes or Kamelets. It returns `resultType`, a typed `value` (boolean, choice string, score number, or classification labels), and only the diagnostics supplied by the expert. See [the preview contract](docs/reference/artifact-contract.md#preview-boundary) for examples and errors.
 
 The service limits concurrent evaluations and request size. It applies an evaluation timeout. A cancelled evaluation retains its capacity slot until the worker exits. Deployment configuration selects expert implementations and credentials. Barn receives no credential values.
 
