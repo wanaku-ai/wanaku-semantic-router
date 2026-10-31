@@ -19,14 +19,14 @@ java -jar target/wanaku-semantic-router-0.3.0-SNAPSHOT.jar runtime --semantic-ro
 
 ## Documentation
 
-- [How Wanaku Semantic Router works](docs/get-started/overview.md)
-- [Run a route from local files](docs/get-started/run-a-local-route.md), without Barn
-- [Run a published semantic route](docs/operate/run-a-published-route.md)
-- [Deploy on Kubernetes and OpenShift](docs/operate/kubernetes.md)
-- [Command line](docs/reference/cli.md) and [runtime configuration](docs/reference/configuration.md)
-- [Build Wanaku Semantic Router](docs/contributing/building.md)
+The [Wanaku Semantic Router documentation](https://wanaku.ai/docs/semantic-router/next/) covers:
 
-The [documentation home](docs/index.md) lists all pages.
+- [Get started](https://wanaku.ai/docs/semantic-router/next/get-started/): how WSR works, and a first route from local files.
+- [Run WSR](https://wanaku.ai/docs/semantic-router/next/operate/): run a published route, configure experts and audit forwarding, and deploy on Kubernetes.
+- [Reference](https://wanaku.ai/docs/semantic-router/next/reference/): the command line, runtime configuration, artifact contract, and preview API.
+- [Contribute](https://wanaku.ai/docs/semantic-router/next/contributing/): build from source, run the tests, and release.
+
+For Wanaku itself, see the [Wanaku documentation](https://wanaku.ai/docs/next/). For the semantic route editor, see the [Wanaku Barn documentation](https://wanaku.ai/docs/barn/next/).
 
 ## License
 
