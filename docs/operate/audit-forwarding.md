@@ -1,3 +1,8 @@
+---
+title: Forward semantic audit records
+description: Send the semantic audit records that Camel captures to Wanaku, turn forwarding on or off, check delivery counters, and enable the Wanaku receiver.
+---
+
 # Forward semantic audit records
 
 WSR sends the semantic audit records that Camel captures to Wanaku. This page describes how to turn forwarding on or off, check delivery, and enable the Wanaku receiver.

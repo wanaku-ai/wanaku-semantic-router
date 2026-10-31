@@ -1,3 +1,8 @@
+---
+title: CI automation
+description: The GitHub Actions workflows of Wanaku Semantic Router, the secrets for publishing, manual releases, and the native architecture image builds.
+---
+
 # CI automation
 
 WSR carries the same seven GitHub Actions workflows as [Camel Integration Capability](https://github.com/wanaku-ai/camel-integration-capability/tree/main/.github/workflows).
@@ -49,3 +54,8 @@ The workflow publishes an image for each architecture:
 | `v0.1.0` | `v0.1.0-x86_64` | `v0.1.0-aarch64` | `v0.1.0` |
 
 `images.txt` lists the combined image name. `build-manifests.sh` creates and pushes the combined manifest after both native image pushes succeed. The manifest lets the container engine select the host architecture. Use a combined manifest digest when deployment must retain both architectures. Use an architecture image digest when deployment uses one architecture.
+
+## Next steps
+
+- [Build Wanaku Semantic Router](building.md): build the JAR and the container locally.
+- [Test Wanaku Semantic Router](testing.md): the checks that the builds run.

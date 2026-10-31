@@ -1,6 +1,6 @@
 ---
 layout: home
-title: "Wanaku Semantic Router: run Barn semantic routes as MCP tools"
+title: "Wanaku Semantic Router: run Barn routes as MCP tools"
 description: Wanaku Semantic Router runs a Barn semantic route as an Apache Camel application and exposes it to Wanaku as one governed MCP tool.
 hero:
   name: Wanaku Semantic Router

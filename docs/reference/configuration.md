@@ -1,3 +1,8 @@
+---
+title: Runtime configuration
+description: Environment settings, command options, deployment properties, timeouts, limits, and the status endpoint of the Wanaku Semantic Router runtime.
+---
+
 # Runtime configuration
 
 This page lists the environment settings, command options, and deployment properties of the WSR runtime, with their precedence, limits, and the status endpoint.

@@ -1,4 +1,9 @@
-# Initialization
+---
+title: Initialize WSR from Git
+description: Load Wanaku Semantic Router (WSR) deployment files from a Git repository before startup, with the clone, cache, retry, and timeout behavior.
+---
+
+# Initialize WSR from Git
 
 WSR follows the Camel Integration Capability startup sequence. It initializes deployment resources before it reads deployment settings. It then loads the selected Barn publication or snapshots local files selected by `--routes-ref`, starts Camel, checks MCP readiness, and registers the forward.
 
@@ -39,3 +44,8 @@ A completed clone moves into the final checkout directory. A failed initializati
 Initialization supplies deployment files. The runtime still verifies and loads its executable routes from the pinned Barn archive. Route-name startup resolves the fixed publication from Barn before this verification. It does not execute YAML files from the initialized repository. The preview service loads no action routes.
 
 WSR reuses the released SDK initializer, retry, catalog model, and JSON serializer APIs. It excludes the SDK runtime module's transitive dependencies. It supplies JGit and the SDK common module explicitly. The WSR Camel BOM manages Camel dependency versions. See [SDK reuse](../contributing/sdk-reuse.md) for the dependency boundary.
+
+## Next steps
+
+- [Run a published semantic route](run-a-published-route.md): start the runtime after initialization.
+- [Runtime configuration](../reference/configuration.md): the storage directory settings.

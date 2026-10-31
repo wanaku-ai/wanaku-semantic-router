@@ -1,3 +1,8 @@
+---
+title: Contribute to Wanaku Semantic Router
+description: Build, test, and release Wanaku Semantic Router, with the CI workflows, the test suites, and the parts of the Java SDK that the router uses.
+---
+
 # Contribute to Wanaku Semantic Router
 
 These pages describe how Wanaku Semantic Router (WSR) is built, tested, and released.
@@ -8,6 +13,7 @@ This repository implements [Barn #182](https://github.com/wanaku-ai/wanaku-barn/
 
 - [Build Wanaku Semantic Router](building.md): build and package WSR from source, and format the code.
 - [CI automation](ci.md): the GitHub Actions workflows, the publishing setup, manual releases, and native architecture builds.
+- [Write documentation](documentation.md): the page conventions and the checks that CI runs on `docs/`.
 - [Test Wanaku Semantic Router](testing.md): the test suites that need more than a Maven build.
 - [Java SDK reuse](sdk-reuse.md): the parts of the Wanaku Capabilities Java SDK that WSR uses.
 

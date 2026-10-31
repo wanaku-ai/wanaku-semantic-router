@@ -1,3 +1,8 @@
+---
+title: Build Wanaku Semantic Router
+description: Build and package Wanaku Semantic Router from source with Maven and the matching Java SDK revision, and apply the Spotless code formatting rules.
+---
+
 # Build Wanaku Semantic Router
 
 This page describes how to build and package WSR from source, and how to apply the code formatting.

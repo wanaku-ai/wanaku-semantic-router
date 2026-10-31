@@ -1,3 +1,8 @@
+---
+title: Wanaku Semantic Router reference
+description: Look up the Wanaku Semantic Router command line, runtime configuration, artifact contract with Barn and Camel, and the evaluation preview API.
+---
+
 # Wanaku Semantic Router reference
 
 These pages describe the settings of Wanaku Semantic Router (WSR) and its contracts with Barn and Apache Camel.

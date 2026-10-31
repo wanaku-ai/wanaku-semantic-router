@@ -1,3 +1,8 @@
+---
+title: Run a published semantic route
+description: Start the Wanaku Semantic Router runtime from a route that Barn publishes, pin an explicit catalog revision and digest, and stop the runtime safely.
+---
+
 # Run a published semantic route
 
 WSR runs under its service authority. Its configured backend credentials determine action access. Caller attribution does not grant delegated authority. Place the MCP endpoint on a private network that Wanaku can reach. Place the preview endpoint on a private network that Barn can reach.

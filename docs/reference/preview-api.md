@@ -1,3 +1,8 @@
+---
+title: Semantic evaluation preview API
+description: The request, typed response, diagnostics, errors, and limits of the POST /api/v1/preview endpoint of the Wanaku Semantic Router preview service.
+---
+
 # Semantic evaluation preview API
 
 The preview service exposes one endpoint. This page describes its request, its response, and its errors.

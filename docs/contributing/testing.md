@@ -1,3 +1,8 @@
+---
+title: Test Wanaku Semantic Router
+description: What the Wanaku Semantic Router tests check, how to evaluate classification quality, and how to run the Wolf Defender smoke test with a model.
+---
+
 # Test Wanaku Semantic Router
 
 This page describes what the tests check, how to evaluate classification quality, and the test suites that need more than a Maven build.

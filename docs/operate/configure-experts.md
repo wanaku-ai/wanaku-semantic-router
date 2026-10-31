@@ -1,3 +1,8 @@
+---
+title: Configure classifier and guard experts
+description: Enable the classifier and guard expert beans that a published catalog names, set their bean properties, and provision the Wolf Defender model.
+---
+
 # Configure classifier and guard experts
 
 A published catalog names a classifier expert and an optional guard expert. This page describes how to enable these expert beans and set their properties.

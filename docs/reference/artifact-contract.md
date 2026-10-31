@@ -1,3 +1,8 @@
+---
+title: Artifact and execution contract
+description: "The catalog layout that Barn publishes for Wanaku Semantic Router: index fields, the semantic manifest, dependencies, experts, and the Camel API."
+---
+
 # Artifact and execution contract
 
 Barn publishes an existing service catalog ZIP. The archive root contains `index.properties`. The selected service contains one main YAML file, auxiliary Kamelets, deployment parameter references, and a dependency list.
@@ -75,3 +80,8 @@ Republish catalogs containing `semantic.question` using `semantic.evaluation`. C
 The public route uses native `ai-tool:` metadata. WSR sets the exact `tool.tags` value as Camel's MCP exposure filter. Helper routes remain internal. Readiness requires successful MCP initialization and discovery of exactly the declared tool.
 
 See the [semantic evaluation preview API](preview-api.md) for the preview request and response.
+
+## Next steps
+
+- [Semantic evaluation preview API](preview-api.md): evaluate a semantic evaluation before publication.
+- [Configure classifier and guard experts](../operate/configure-experts.md): enable the expert beans that a catalog names.
