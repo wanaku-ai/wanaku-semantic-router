@@ -16,7 +16,7 @@
     <camel.version>4.23.0</camel.version>
     <spotless-maven-plugin.version>3.10.4</spotless-maven-plugin.version>
     <palantir-java-format.version>2.71.0</palantir-java-format.version>
-    <wanaku-capabilities-sdk.version>0.3.0-SNAPSHOT</wanaku-capabilities-sdk.version>
+    <wanaku-capabilities-sdk.version>0.3.0</wanaku-capabilities-sdk.version>
     <langchain4j-mcp.version>1.22.0-beta32</langchain4j-mcp.version>
     <jgit.version>7.8.0.202609011348-r</jgit.version>
     <picocli.version>4.7.7</picocli.version>
