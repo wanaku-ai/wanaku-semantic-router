@@ -1,27 +1,34 @@
 #!/bin/bash
+
 set -euo pipefail
 
 branch=${1:-main}
-if [[ ! "$branch" =~ ^[a-zA-Z0-9_][a-zA-Z0-9_.-]{0,119}$ ]]; then
-  echo "Invalid container image tag" >&2
-  exit 2
-fi
+registry=${2:-quay.io/wanaku}
+manifests=$(cat images.txt)
 
-while IFS= read -r manifest || [[ -n "$manifest" ]]; do
-  [[ -z "$manifest" || "$manifest" == \#* ]] && continue
-  image=${manifest%:*}
-  aarch64_image="${image}:${branch}-aarch64"
-  x86_64_image="${image}:${branch}-x86_64"
+for image in $manifests ; do
+  manifest="${registry}/${image}"
+  aarch64Image=$(echo "${manifest}" | sed "s/:[^:]*$/:${branch}-aarch64/")
+  x864Image=$(echo "${manifest}" | sed "s/:[^:]*$/:${branch}-x86_64/")
 
-  podman pull --arch arm64 "$aarch64_image"
-  podman pull --arch amd64 "$x86_64_image"
+  echo "Pulling ${aarch64Image}"
+  podman pull --arch arm64 "${aarch64Image}"
 
-  if [[ "$branch" == main ]]; then
-    target="$manifest"
+  echo "Pulling ${x864Image}"
+  podman pull --arch x86_64 "${x864Image}"
+
+  if [[ "${branch}" == "main" ]] ; then
+    echo "Creating the manifest ${manifest}"
+    podman rmi -f "${manifest}" || true
+    podman manifest create "${manifest}" "${aarch64Image}" "${x864Image}"
+    podman manifest push --all "${manifest}"
   else
-    target="${image}:${branch}"
+    stableManifest=$(echo "${manifest}" | sed "s/:[^:]*$/:${branch}/")
+
+    echo "Creating the manifest ${stableManifest}"
+    podman rmi -f "${stableManifest}" || true
+    podman manifest create "${stableManifest}" "${aarch64Image}" "${x864Image}"
+    podman manifest push --all "${stableManifest}"
   fi
-  podman manifest rm "$target" 2>/dev/null || true
-  podman manifest create "$target" "$aarch64_image" "$x86_64_image"
-  podman manifest push --all "$target" "docker://$target"
-done < "$(dirname "$0")/images.txt"
+
+done

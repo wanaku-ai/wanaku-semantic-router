@@ -7,7 +7,7 @@ description: The parts of the Wanaku Capabilities Java SDK that Wanaku Semantic 
 
 WSR uses the Wanaku Capabilities Java SDK for catalog requests, archive extraction, dependency resolution, Git initialization, retry policy, and JSON serialization.
 
-WSR uses SDK `0.3.0-SNAPSHOT`. The HTTP extension is part of the companion SDK change. CI installs the SDK from the commit in `.github/sdk-revision` before it builds WSR. A local build must install that SDK revision first. See the [build instructions](https://github.com/wanaku-ai/wanaku-semantic-router/blob/main/README.md).
+WSR uses SDK `0.3.0`, which the build gets from Maven Central. See the [build instructions](building.md).
 
 | SDK feature | WSR use |
 | --- | --- |

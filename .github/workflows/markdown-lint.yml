@@ -9,10 +9,6 @@ on:
       - "*.md"
       - "examples/**/README.md"
       - ".markdownlint-cli2.yaml"
-      - ".github/workflows/markdown-lint.yml"
-
-permissions:
-  contents: read
 
 jobs:
   lint:

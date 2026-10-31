@@ -4,10 +4,9 @@ Wanaku Semantic Router (WSR) runs a Barn catalog as an Apache Camel application.
 
 ## Quick start
 
-Use Java 21 or later and Maven 3.9 or later. Check out `wanaku-capabilities-java-sdk` beside WSR as `../sdk`, at the commit in `.github/sdk-revision`. Then build both:
+Use Java 21 or later and Maven 3.9 or later. Then build WSR:
 
 ```sh
-mvn -B -ntp -f ../sdk/pom.xml clean install
 mvn -B -ntp clean verify
 ```
 
