@@ -1,6 +1,18 @@
 # Run a route from local files
 
-You can start WSR from local route files, without Barn. Wanaku registration is still necessary.
+This tutorial starts WSR from the support route fixtures in this repository, without Barn. At the end, Wanaku lists the `route_support` tool from the `local-support` forward.
+
+## Prerequisites
+
+- Java 21 or later and Maven 3.9 or later.
+- A Wanaku server with its management API at `http://localhost:8080`.
+- An API key for the TypeSafe AI provider in `TYPESAFE_API_KEY`.
+
+## Build WSR
+
+Build the SDK revision and WSR as described in [Build Wanaku Semantic Router](../contributing/building.md#build-and-package).
+
+## Start the route
 
 The runtime accepts a local path or `file:` URI through `--routes-ref`. Barn publication, a Barn URL, a catalog index and catalog revision/digest pins are unnecessary. Wanaku registration remains required. Keep `semantic-router.properties` beside the route; WSR needs its expert bean, tool name, input profile, Kamelets and action configuration. The [artifact contract](../reference/artifact-contract.md) applies to these resources as well.
 

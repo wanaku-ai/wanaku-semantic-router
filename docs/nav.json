@@ -4,6 +4,7 @@
       "text": "Get started",
       "link": "get-started/",
       "items": [
+        { "text": "How WSR works", "link": "get-started/overview" },
         { "text": "Run a route from local files", "link": "get-started/run-a-local-route" }
       ]
     },
@@ -25,6 +26,7 @@
       "text": "Reference",
       "link": "reference/",
       "items": [
+        { "text": "Command line", "link": "reference/cli" },
         { "text": "Runtime configuration", "link": "reference/configuration" },
         { "text": "Artifact and execution contract", "link": "reference/artifact-contract" },
         { "text": "Preview API", "link": "reference/preview-api" }
@@ -35,6 +37,7 @@
       "link": "contributing/",
       "collapsed": true,
       "items": [
+        { "text": "Building", "link": "contributing/building" },
         { "text": "CI automation", "link": "contributing/ci" },
         { "text": "Testing", "link": "contributing/testing" },
         { "text": "Java SDK reuse", "link": "contributing/sdk-reuse" }
