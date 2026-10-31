@@ -4,7 +4,8 @@ These pages describe how Wanaku Semantic Router (WSR) is built, tested, and rele
 
 ## Pages in this section
 
-- [CI automation](ci.md): the GitHub Actions workflows, the publishing setup, and manual releases.
+- [CI automation](ci.md): the GitHub Actions workflows, the publishing setup, manual releases, and native architecture builds.
+- [Test Wanaku Semantic Router](testing.md): the test suites that need more than a Maven build.
 - [Java SDK reuse](sdk-reuse.md): the parts of the Wanaku Capabilities Java SDK that WSR uses.
 
 ## Next steps

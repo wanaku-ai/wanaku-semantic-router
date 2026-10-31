@@ -19,7 +19,7 @@ The first initialization clones the repository's default branch. A later startup
 
 Without `--init-from`, WSR reads an optional deployment file directly. You can use `--init-from` without a deployment file. WSR initializes the checkout and then uses the command options. Help and version output do not initialize a repository or read deployment settings.
 
-`WSR_DATA_DIR` selects the initialization and catalog storage directory. An explicit `--data-dir` overrides that environment setting and catalog storage from a file or generic property. `WSR_WORK_DIRECTORY` selects a separate catalog storage directory. An explicit `--work-directory` selects a separate catalog storage directory. See [deployment](deployment.md) for command options and their precedence.
+`WSR_DATA_DIR` selects the initialization and catalog storage directory. An explicit `--data-dir` overrides that environment setting and catalog storage from a file or generic property. `WSR_WORK_DIRECTORY` selects a separate catalog storage directory. An explicit `--work-directory` selects a separate catalog storage directory. See [runtime configuration](../reference/configuration.md) for command options and their precedence.
 
 ## Limits and retries
 

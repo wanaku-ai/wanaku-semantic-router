@@ -1,18 +1,33 @@
 {
   "sidebar": [
     {
+      "text": "Get started",
+      "link": "get-started/",
+      "items": [
+        { "text": "Run a route from local files", "link": "get-started/run-a-local-route" }
+      ]
+    },
+    {
       "text": "Run WSR",
       "link": "operate/",
       "items": [
-        { "text": "Deployment", "link": "operate/deployment" },
-        { "text": "Initialize from Git", "link": "operate/initialize-from-git" }
+        { "text": "Run a published route", "link": "operate/run-a-published-route" },
+        { "text": "Initialize from Git", "link": "operate/initialize-from-git" },
+        { "text": "Classifier and guard experts", "link": "operate/configure-experts" },
+        { "text": "Semantic audit forwarding", "link": "operate/audit-forwarding" },
+        { "text": "Kafka destinations", "link": "operate/kafka-destinations" },
+        { "text": "Evaluation preview", "link": "operate/preview-service" },
+        { "text": "Container", "link": "operate/container" },
+        { "text": "Kubernetes and OpenShift", "link": "operate/kubernetes" }
       ]
     },
     {
       "text": "Reference",
       "link": "reference/",
       "items": [
-        { "text": "Artifact and execution contract", "link": "reference/artifact-contract" }
+        { "text": "Runtime configuration", "link": "reference/configuration" },
+        { "text": "Artifact and execution contract", "link": "reference/artifact-contract" },
+        { "text": "Preview API", "link": "reference/preview-api" }
       ]
     },
     {
@@ -21,6 +36,7 @@
       "collapsed": true,
       "items": [
         { "text": "CI automation", "link": "contributing/ci" },
+        { "text": "Testing", "link": "contributing/testing" },
         { "text": "Java SDK reuse", "link": "contributing/sdk-reuse" }
       ]
     }
