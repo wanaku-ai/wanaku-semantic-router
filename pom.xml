@@ -3,12 +3,12 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>ai.wanaku</groupId>
   <artifactId>wanaku-semantic-router</artifactId>
-  <version>0.3.0-SNAPSHOT</version>
+  <version>0.3.0</version>
   <scm>
     <connection>scm:git:https://github.com/wanaku-ai/wanaku-semantic-router.git</connection>
     <developerConnection>scm:git:https://github.com/wanaku-ai/wanaku-semantic-router.git</developerConnection>
     <url>https://github.com/wanaku-ai/wanaku-semantic-router</url>
-    <tag>HEAD</tag>
+    <tag>wanaku-semantic-router-0.3.0</tag>
   </scm>
   <properties>
     <maven.compiler.release>21</maven.compiler.release>
