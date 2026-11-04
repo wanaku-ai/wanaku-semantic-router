@@ -68,7 +68,7 @@ gh workflow run release -r ${RELEASE_BRANCH} -f releaseBranch=${RELEASE_BRANCH} 
 
 After the release workflow completes successfully:
 
-The `release` workflow publishes the signed runtime ZIP containing the application JAR and its `lib/` directory. Keep both together when extracting the distribution.
+The `release` workflow publishes the signed `wanaku-semantic-router-VERSION-jar-with-dependencies.jar`. The JAR contains all dependencies, so it runs alone with `java -jar`.
 
 1. Publish container images and multi-architecture manifests:
 

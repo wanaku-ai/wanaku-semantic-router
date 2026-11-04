@@ -49,9 +49,6 @@ jobs:
           cd ${{ github.workspace }}
       - name: Build with Maven
         run: mvn -B install --file pom.xml
-      - name: Package runtime
-        working-directory: target
-        run: zip -r wanaku-semantic-router-${{ github.event.inputs.currentDevelopmentVersion }}.zip wanaku-semantic-router-${{ github.event.inputs.currentDevelopmentVersion }}.jar lib
       - name: Set arch
         id: arch
         run: echo "arch=$(uname -m)" >> $GITHUB_OUTPUT

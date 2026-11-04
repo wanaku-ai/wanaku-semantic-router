@@ -44,13 +44,6 @@ jobs:
           git push origin HEAD:${{ github.event.inputs.releaseBranch }} wanaku-semantic-router-${{ github.event.inputs.currentDevelopmentVersion }}
           mvn -B --file pom.xml release:perform -Dgoals=install
 
-      # Package the runtime JAR and its lib/ directory for JReleaser
-
-      - name: Package release runtime
-        run: |
-          cd target/checkout/target
-          zip -r ../../wanaku-semantic-router-${{ github.event.inputs.currentDevelopmentVersion }}.zip wanaku-semantic-router-${{ github.event.inputs.currentDevelopmentVersion }}.jar lib
-
       # Create a release
 
       - name: Run JReleaser

@@ -14,7 +14,7 @@ WSR carries the same seven GitHub Actions workflows as [Camel Integration Capabi
 | Dependency Review | PRs | Review dependency changes for known vulnerabilities. |
 | Markdown Lint | PRs changing Markdown or lint configuration | Check documentation with markdownlint-cli2. |
 | early-access | Manual dispatch | Build both Linux architectures, publish containers and manifests, and publish a signed early-access runtime ZIP through JReleaser. |
-| release | Manual dispatch | Prepare the Maven release tag and next development version on the selected branch, build the release, and publish a signed runtime ZIP through JReleaser. |
+| release | Manual dispatch | Prepare the Maven release tag and next development version on the selected branch, build the release, and publish a signed JAR with dependencies through JReleaser. |
 | release-artifacts | Manual dispatch | Build the Maven release tag and publish containers and manifests for both Linux architectures. |
 
 The build, PR, and early-access workflows install the `wanaku-capabilities-java-sdk` branch that has the same name as the WSR branch, or `main` if no such branch exists. The `pom.xml` file selects the SDK version that the build uses.
@@ -23,9 +23,6 @@ Dependabot checks Maven dependencies weekly, excluding Apache Camel dependencies
 
 ## Differences from CIC
 
-These differences come from how WSR is packaged:
-
-- WSR ships a thin JAR and a `lib/` directory, not a single JAR with dependencies. The `release` and `early-access` workflows put both in a ZIP file, and JReleaser publishes it as a `JAVA_BINARY` distribution. CIC publishes its JAR as a `SINGLE_JAR` distribution.
 - PR builds do not run on Windows.
 
 ## Publishing setup
@@ -47,7 +44,7 @@ For a release, dispatch `release` with the release version, the next development
 
 After the release completes, dispatch `release-artifacts` with the same release version (`0.3.0`) to build the tagged containers. GitHub-token pushes do not automatically trigger another workflow.
 
-The release ZIP contains the application JAR and its `lib/` directory. Extract both into the same directory and run `java -jar wanaku-semantic-router-VERSION.jar` with the desired command.
+JReleaser publishes `wanaku-semantic-router-VERSION-jar-with-dependencies.jar` as a `SINGLE_JAR` distribution, as CIC does. The JAR contains all dependencies. To start it, run `java -jar wanaku-semantic-router-VERSION-jar-with-dependencies.jar` with the desired command.
 
 # Native architecture builds
 
