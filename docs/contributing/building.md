@@ -19,7 +19,7 @@ mvn -B -ntp clean verify
 
 To build against an unreleased SDK, install the SDK into your local Maven repository first. Then set `wanaku-capabilities-sdk.version` in `pom.xml` to the SDK version that you installed.
 
-The build creates `target/wanaku-semantic-router-0.3.0-SNAPSHOT.jar` and `target/lib/`. Keep the JAR and the library directory together. The JAR manifest contains the library paths. The tests use a local HTTP provider fixture. They do not need paid inference or backend services.
+The build creates `target/wanaku-semantic-router-0.3.0-SNAPSHOT.jar` and `target/lib/`. Keep the JAR and the library directory together. The JAR manifest contains the library paths. The build also creates `target/wanaku-semantic-router-0.3.0-SNAPSHOT-jar-with-dependencies.jar`, which contains all dependencies and runs alone. Releases publish this JAR. The tests use a local HTTP provider fixture. They do not need paid inference or backend services.
 
 The runtime uses Camel `4.23.0` artifacts, which contain [PR #27494](https://github.com/apache/camel/pull/27494). Republish catalogs using `semantic.evaluation`; old `semantic.question` YAML is incompatible. Migrate Barn preview clients to the new request and response contract before deployment. The Camel BOM manages all Camel dependency versions. Preserve the complete packaged distribution or container image digest to reproduce a deployment.
 

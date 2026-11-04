@@ -37,5 +37,5 @@ release:
 distributions:
   wanaku-semantic-router:
     artifacts:
-      - path: ./target/wanaku-semantic-router-{{projectVersion}}.zip
-    type: JAVA_BINARY
+      - path: ./target/wanaku-semantic-router-{{projectVersion}}-jar-with-dependencies.jar
+    type: SINGLE_JAR
